@@ -1,4 +1,5 @@
 const Users = require("../models/Users")
+const Passwords = require("../models/passwords")
 
 const {
   GraphQLObjectType,
@@ -65,6 +66,16 @@ const mutation = new GraphQLObjectType({
       },
       resolve(parent, args){
         // Here I will save the username, email and hashed pass into the password collection.
+        const NewPassEntry = new Passwords({
+          name: args.name,
+          email: args.email,
+          password: args.password
+        })
+
+        // will be add hashing of password tomorrow.
+
+        NewPassEntry.save();
+
         return `These are your arguments ${args.name} ${args.email} ${args.password}`
         // Next I will also create a new User Type, with empty posts list etc. with the username, email and leaving other things blank.
       }
