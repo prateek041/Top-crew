@@ -1,14 +1,14 @@
 const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
-const typeDefs = require("./schema")
+const typeDefs = require("./schema/schema")
 const resolvers = require("./resolvers/resolvers")
+const schema = require("./schema/schema")
 
 const app = express();
 
 // Middleware to implement GraphQL
 app.use("/gql", graphqlHTTP({
-  schema: typeDefs,
-  rootValue: resolvers,
+  schema: schema,
   graphiql: true
 }))
 

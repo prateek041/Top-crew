@@ -1,7 +1,7 @@
-const resolvers = {
-  hello : ()=>{
-    return "Hello World"
-  }
-}
+// const resolvers = {
+//   hello : ()=>{
+//     return "Hello World"
+//   }
+// }
 
-module.exports = resolvers;
+// module.exports = resolvers;
