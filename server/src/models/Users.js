@@ -1,21 +1,26 @@
-// This is the mongoose model to store the user information into the Database.
-
-// I will be adding more fields like posts collection etc.
-const mongoose = require('mongoose');
+const mongoose = require("mongoose")
 
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
-  },
-  phone: {
-    type: String,
+    required: true,
   },
   email: {
-    type: String
+    type: String,
+    unique: true,
+    required: true,
   },
   password: {
-    type: String
+    type: String,
+    required: true,
+  },
+  profile: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Profiles',
+    required: true
   }
 })
 
-module.exports = mongoose.model('Users', UserSchema)
+const UserModel = mongoose.model("Users", UserSchema);
+module.exports = UserModel;
+// check what to do if I keep them in seperate collections.
