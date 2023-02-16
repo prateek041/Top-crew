@@ -1,5 +1,6 @@
-const Users = require("../models/Users")
-const Passwords = require("../models/passwords")
+const ProfilesCollection = require("../models/Profiles")
+const UsersCollection = require("../models/Users")
+const {HashPass, VerifyPass} = require("../utils/hashingUtil")
 
 const {
   GraphQLObjectType,
@@ -15,38 +16,32 @@ const UserType = new GraphQLObjectType({
   fields: ()=>({
     id: { type: GraphQLID},
     name: { type: GraphQLString},
+    phone: { type: GraphQLString},
     email: { type: GraphQLString},
-    password: {type: GraphQLString}
+    prodileId: {type: GraphQLString}
   })
 })
 
 // Password Type
-const Password = new GraphQLObjectType({
-  name: "password",
-  fields: ()=>({
-    UserID: {type: GraphQLID},
-    password: {type: GraphQLString}
-  })
-})
+// const PasswordType = new GraphQLObjectType({
+//   name: "password",
+//   fields: ()=>({
+//     UserID: {type: GraphQLString},
+//     name: {type: GraphQLString},
+//     email: {type: GraphQLString},
+//     password: {type: GraphQLString},
+//   })
+// })
 
 // RootQuery type
 const RootQuery = new GraphQLObjectType({
   name: "RootQuery",
   fields: {
-    users: {
+    GetAllUsers: {
       type: new GraphQLList(UserType),
-      resolve(parents, args){
-        // Users.find(); // Find all the users and return.
-        return [
-          {
-            name: "Hello",
-            email: "Hello@gmail.com",
-          },
-          {
-            name: "world",
-            email: "world@gmail.com",
-          },
-        ]
+      resolve: async(parents, args)=>{
+        const userList = await ProfilesCollection.find()
+        return userList;
       }
     }
   }
@@ -56,6 +51,7 @@ const RootQuery = new GraphQLObjectType({
 const mutation = new GraphQLObjectType({
   name: "Mutations",
   fields: {
+
     // Register a new user.
     NewUserSignUp: {
       type: GraphQLString,
@@ -64,20 +60,35 @@ const mutation = new GraphQLObjectType({
         email: {type: GraphQLString},
         password: {type: GraphQLString}
       },
-      resolve(parent, args){
-        // Here I will save the username, email and hashed pass into the password collection.
-        const NewPassEntry = new Passwords({
+      resolve: async(parent, args)=>{
+        // check if the email is unique.
+        const checkUserEmail = await UsersCollection.findOne({email: args.email});
+        if (checkUserEmail != null) {
+          throw new Error("Email already exists")
+        }
+
+        // If email isn't already used, save it.
+        const HashedPass = await HashPass(args.password)
+
+        // Create a new profile for the new user.
+        const NewUserProfile = new ProfilesCollection({
           name: args.name,
           email: args.email,
-          password: args.password
+        })
+        await NewUserProfile.save();
+
+        // Create a new user
+        const NewUser = new UsersCollection({
+          name: args.name,
+          email: args.email,
+          password: HashedPass,
+          profile: NewUserProfile._id
         })
 
-        // will be add hashing of password tomorrow.
+        await NewUser.save();
 
-        NewPassEntry.save();
-
-        return `These are your arguments ${args.name} ${args.email} ${args.password}`
-        // Next I will also create a new User Type, with empty posts list etc. with the username, email and leaving other things blank.
+        // Maybe I should change this response
+        return "User created succesfully"
       }
     }
   }
