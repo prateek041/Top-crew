@@ -4,6 +4,12 @@ const {HashPass, VerifyPass} = require("../../utils/hashingUtil")
 const UsersCollection = require("../../models/Users")
 const ProfilesCollection = require("../../models/Profiles")
 
+// bcrypt
+const bcrypt = require("bcrypt")
+
+// jsonwebtoken
+const jwt = require("jsonwebtoken")
+
 const NewUserSignUp = {
   type: GraphQLString,
       args:{
@@ -43,6 +49,32 @@ const NewUserSignUp = {
       }
     }
 
+const UserLogin = {
+  type: GraphQLString,
+  args:{
+    email: {type: GraphQLString},
+    password: {type: GraphQLString},
+  },
+  resolve: async(parents, args)=>{
+    const email = args.email
+    const password = args.password
+
+    // Verify if the email and password are corrct, if not, throw error.
+    const user = await UsersCollection.findOne({email});
+    if (!user){
+      throw new Error("User does not exist")
+    }
+    if (! bcrypt.compareSync(password, user.password)){
+      throw new Error("wrong Username or password")
+    }
+
+    // If no error, generate a JWT and send back.
+    const token = jwt.sign({userId: user.id}, process.env.JWT_SECRET, { expiresIn: '1h' });
+    return token;
+  }
+}
+
     module.exports = {
-      NewUserSignUp
+      NewUserSignUp,
+      UserLogin
     }

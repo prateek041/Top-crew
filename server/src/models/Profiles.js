@@ -18,6 +18,13 @@ const ProfileSchema = new mongoose.Schema({
   profileId:{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Users',
+  },
+  bio:{
+    type: String,
+    maxLength: 50,
+  },
+  upForHiring:{
+    type: Boolean,
   }
 })
 

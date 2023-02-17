@@ -1,5 +1,5 @@
 // Collection of mutations
-const {NewUserSignUp} = require('./mutation/User')
+const {NewUserSignUp, UserLogin} = require('./mutation/User')
 // collection of queries
 const {GetAllUsersProfile, GetUserProfile} = require("../schema/query/query")
 
@@ -7,17 +7,6 @@ const {
   GraphQLObjectType,
   GraphQLSchema,
 } = require('graphql');
-
-// Password Type
-// const PasswordType = new GraphQLObjectType({
-//   name: "password",
-//   fields: ()=>({
-//     UserID: {type: GraphQLString},
-//     name: {type: GraphQLString},
-//     email: {type: GraphQLString},
-//     password: {type: GraphQLString},
-//   })
-// })
 
 // RootQuery type
 const RootQuery = new GraphQLObjectType({
@@ -36,6 +25,8 @@ const mutation = new GraphQLObjectType({
   fields: {
     // Register a new user.
     NewUserSignUp: NewUserSignUp,
+    // User logs in and a JWT is returned.
+    UserLogin: UserLogin,
   }
 })   
 
