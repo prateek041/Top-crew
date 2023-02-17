@@ -9,3 +9,11 @@ This is how I will fetch user profile on signing in
   const profile = await ProfilesCollection.findOne({_id: retrievedUser.profile})
   console.log(profile)
 ```
+
+## These are the todos
+
+- User signup [x]
+- User login []
+- View all profiles [x]
+- Fetch a single profile []
+- Refactor the schema.js []
