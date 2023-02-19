@@ -74,7 +74,7 @@ const UserLogin = {
   }
 }
 
-    module.exports = {
-      NewUserSignUp,
-      UserLogin
-    }
+module.exports = {
+  NewUserSignUp,
+  UserLogin
+}
