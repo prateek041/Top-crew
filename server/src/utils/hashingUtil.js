@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
 
 const saltCount = process.env.SaltRound;
 
@@ -12,4 +13,10 @@ const VerifyPass = async(password, savedPassword)=>{
   return match;
 }
 
-module.exports = { HashPass, VerifyPass }
+const verifyToken = async(token)=>{
+  const secret = process.env.JWT_SECRET;
+  const decodedToken = jwt.verify(token, secret);
+  return decodedToken;
+} 
+
+module.exports = { HashPass, VerifyPass, verifyToken }
