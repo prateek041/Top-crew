@@ -1,6 +1,6 @@
 // this contains mutations for users.
 const {GraphQLString} = require('graphql')
-const {HashPass, VerifyPass} = require("../../utils/hashingUtil")
+const {HashPass} = require("../../utils/hashingUtil")
 const UsersCollection = require("../../models/Users")
 const ProfilesCollection = require("../../models/Profiles")
 

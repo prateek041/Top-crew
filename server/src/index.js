@@ -1,15 +1,11 @@
 const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
-const typeDefs = require("./schema/schema")
-const resolvers = require("./resolvers/resolvers")
+const mongoose = require('mongoose')
 const schema = require("./schema/schema")
 const connectDB = require('./config/db')
 require('dotenv').config()
 
 const app = express();
-
-// Connection to the database
-connectDB();
 
 // Middleware to implement GraphQL
 app.use("/gql", graphqlHTTP({
@@ -17,9 +13,13 @@ app.use("/gql", graphqlHTTP({
   graphiql: true
 }))
 
+const startApp = async()=>{
+  await connectDB();
 
+  // Start the server
+  app.listen(process.env.PORT, ()=>{
+    console.log(`Server listening on port ${process.env.PORT}`)
+  })
+}
 
-
-app.listen("9091", ()=>{
-  console.log("Server is listening on PORT 9091")
-})
+startApp();

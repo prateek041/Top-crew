@@ -9,7 +9,7 @@ const {
 } = require('graphql');
 
 // RootQuery type
-const RootQuery = new GraphQLObjectType({
+const query = new GraphQLObjectType({
   name: "RootQuery",
   fields: {
     // Get all the users profiles
@@ -32,6 +32,6 @@ const mutation = new GraphQLObjectType({
 
 // Creating the schema and exporting.
 module.exports = new GraphQLSchema({
-  query: RootQuery,
-  mutation
+  query,
+  mutation,
 })
