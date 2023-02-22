@@ -22,6 +22,7 @@ This is how I will fetch user profile on signing in.
 - Fetch a single profile [x]
 - Refactor the schema.js [x]
 - better define the profile schema. []
+- new user.js needs some refactoring in error handling.
 
 ## This is how the authorization process will look like
 

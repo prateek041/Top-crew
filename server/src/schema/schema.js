@@ -1,37 +1,14 @@
-// Collection of mutations
-const {NewUserSignUp, UserLogin} = require('./mutation/User')
-// collection of queries
-const {GetAllUsersProfile, GetUserProfile} = require("../schema/query/query")
+const fs = require('fs');
+const { createSchema } = require('graphql-yoga');
+const path = require("path");
+const { resolvers } = require("./resolvers/resolvers") // bringing in resolvers.
 
-const {
-  GraphQLObjectType,
-  GraphQLSchema,
-} = require('graphql');
+const typeDefs = fs.readFileSync(path.join(__dirname, "schema.graphql"), "utf8") // reading the schema.
 
-// RootQuery type
-const query = new GraphQLObjectType({
-  name: "RootQuery",
-  fields: {
-    // Get all the users profiles
-    GetAllUsersProfile: GetAllUsersProfile,
-    // Get a single user matching the email.
-    GetUserProfile: GetUserProfile,
-  }
-})
+const schema = createSchema({
+  typeDefs,
+  resolvers,
+}
+)
 
-// Mutations:
-const mutation = new GraphQLObjectType({
-  name: "Mutations",
-  fields: {
-    // Register a new user.
-    NewUserSignUp: NewUserSignUp,
-    // User logs in and a JWT is returned.
-    UserLogin: UserLogin,
-  }
-})   
-
-// Creating the schema and exporting.
-module.exports = new GraphQLSchema({
-  query,
-  mutation,
-})
+module.exports = { schema }
