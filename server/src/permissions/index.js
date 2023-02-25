@@ -1,17 +1,19 @@
-const {shield, and, not} = require("graphql-shield");
-const {isAuthenticated} = require('./rules');
-const schema = require("../schema/schema")
+const { shield, and, not } = require("graphql-shield");
+const { isAuthenticated } = require('./rules');
 
 const permissions = shield({
-  query: {
-    GetAllUsersProfile: not(isAuthenticated),
-    GetUserProfile: isAuthenticated
+  Query: {
+    getAllUsersProfile: and(), // don't run anything here.
+    getUserProfile: isAuthenticated // execute only if isAuthenticated returns true.
   },
-  mutation: {
-    NewUserSignUp: not(isAuthenticated),
-    UserLogin: not(isAuthenticated)
+  Mutation: {
+    newUserSignUp: and(),
+    userLogin: and()
   },
-  schema
-})
+},
+  {
+    debug: true
+  }
+)
 
-module.exports = {permissions}
+module.exports = { permissions }
