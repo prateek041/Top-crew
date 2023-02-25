@@ -1,6 +1,6 @@
 const { HashPass } = require("../../utils/hashingUtil")
 const UsersCollection = require("../../models/Users")
-const ProfilesCollection = require("../../models/Profiles")
+const { newUserProfile } = require("./profile")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 
@@ -15,23 +15,17 @@ const newUserSignUp = async (_, args) => {
   // If email isn't already used, hash the password
   const HashedPass = await HashPass(args.password)
 
-  // Create a new profile for the new user.
-  const NewUserProfile = new ProfilesCollection({
-    name: args.name,
-    email: args.email,
-  })
-  await NewUserProfile.save();
+  // Create a basic user profile as well.
+  const newProfile = await newUserProfile(userName = args.name, email = args.email);
 
   // Create a new user
-  const NewUser = new UsersCollection({
+  const newUser = new UsersCollection({
     name: args.name,
     email: args.email,
     password: HashedPass,
-    profile: NewUserProfile._id
+    profile: newProfile._id
   })
-
-  // Save in the database
-  await NewUser.save();
+  await newUser.save();
   return "User created succesfully"
 }
 
@@ -49,8 +43,15 @@ const userLogin = async (_, args) => {
     throw new Error("wrong Username or password")
   }
 
+  const payLoad = {
+    userId: user.id,
+    name: user.name,
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + (60 * 60), // the token will expire in 60 mins.
+  }
+
   // If no error, generate a JWT and send back.
-  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  const token = jwt.sign(payLoad, process.env.JWT_SECRET, { algorithm: 'HS256' });
   return token;
 }
 

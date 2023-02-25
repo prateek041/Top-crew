@@ -1,17 +1,29 @@
-const UsersCollection = require("../../models/Users")
 const ProfilesCollection = require("../../models/Profiles")
 
-const getAllUsersProfile = async () => {
+// return an array of user profiles
+const getAllUsersProfile = async (_, args, context) => {
   const userList = await ProfilesCollection.find()
   return userList;
 }
 
+// return the user profile associated to the provided email
 const getUserProfile = async (_, args) => {
-  const user = await UsersCollection.findOne({ email: args.email })
+  const user = await ProfilesCollection.findOne({ email: args.email })
   return user;
+}
+
+// create a basic user profile using the name and email.
+const newUserProfile = async (userName, email) => {
+  const NewUserProfile = new ProfilesCollection({
+    name: userName,
+    email: email,
+  })
+  await NewUserProfile.save();
+  return NewUserProfile;
 }
 
 module.exports = {
   getAllUsersProfile,
-  getUserProfile
+  getUserProfile,
+  newUserProfile
 }
