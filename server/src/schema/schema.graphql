@@ -1,0 +1,27 @@
+# User type, used to store private information like email, password etc.
+type User {
+  id: ID
+  name: String
+  email: String
+  password: String
+  profileID: String
+}
+
+# A user profile, every user will have a profile
+type Profile {
+  id: ID
+  name: String
+  email: String
+}
+
+# Queries
+type Query {
+  getAllUsersProfile: [Profile!]!
+  getUserProfile(email: String): Profile
+}
+
+# Mutations
+type Mutation {
+  newUserSignUp(name: String, email: String, password: String): String
+  userLogin(email: String, password: String): String
+}

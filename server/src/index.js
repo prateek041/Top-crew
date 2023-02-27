@@ -1,20 +1,25 @@
-const express = require('express');
-const { graphqlHTTP } = require('express-graphql');
-const typeDefs = require("./schema")
-const resolvers = require("./resolvers/resolvers")
+const { createServer } = require("node:http") // server creater for node js
+const { createYoga } = require("graphql-yoga")
+const { schema } = require("./schema/schema")
+const connectDB = require("./config/db")
+const { headerExtracter } = require("./utils/authHeader")
+const { applyMiddleware } = require("graphql-middleware")
+const { permissions } = require("./permissions/index")
+require('dotenv').config()
 
-const app = express();
+// Modify the schema to attach graphql Shield
+const schemaWithAuth = applyMiddleware(schema, permissions);
 
-// Middleware to implement GraphQL
-app.use("/gql", graphqlHTTP({
-  schema: typeDefs,
-  rootValue: resolvers,
-  graphiql: true
-}))
+const yoga = createYoga({ schema: schemaWithAuth, context: headerExtracter }); // attaching a function to extract header
+const server = createServer(yoga)
 
+const startApp = async () => {
+  // Connect to the database
+  await connectDB();
+  // Start the server
+  server.listen(process.env.PORT, () => {
+    console.log(`Server listening on port ${process.env.PORT}`)
+  })
+}
 
-
-
-app.listen("9091", ()=>{
-  console.log("Server is listening on PORT 9091")
-})
+startApp();
