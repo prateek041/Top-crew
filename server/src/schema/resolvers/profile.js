@@ -22,6 +22,11 @@ const newUserProfile = async (userName, email) => {
   return NewUserProfile;
 }
 
+const updateUserProfile = async (_, args) => {
+  console.log("This was run");
+  return "yes"
+}
+
 module.exports = {
   getAllUsersProfile,
   getUserProfile,

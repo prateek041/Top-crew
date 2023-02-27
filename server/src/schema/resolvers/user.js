@@ -1,4 +1,4 @@
-const { HashPass } = require("../../utils/hashingUtil")
+const { hashPass } = require("../../utils/hashingUtil")
 const UsersCollection = require("../../models/Users")
 const { newUserProfile } = require("./profile")
 const bcrypt = require("bcrypt")
@@ -13,7 +13,7 @@ const newUserSignUp = async (_, args) => {
   }
 
   // If email isn't already used, hash the password
-  const HashedPass = await HashPass(args.password)
+  const hashedPass = await hashPass(args.password)
 
   // Create a basic user profile as well.
   const newProfile = await newUserProfile(userName = args.name, email = args.email);
@@ -22,7 +22,7 @@ const newUserSignUp = async (_, args) => {
   const newUser = new UsersCollection({
     name: args.name,
     email: args.email,
-    password: HashedPass,
+    password: hashedPass,
     profile: newProfile._id
   })
   await newUser.save();

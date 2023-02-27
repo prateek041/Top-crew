@@ -8,7 +8,7 @@ const permissions = shield({
   },
   Mutation: {
     newUserSignUp: and(),
-    userLogin: and()
+    userLogin: and(),
   },
 },
   {
