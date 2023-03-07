@@ -7,21 +7,35 @@ type User {
   profileID: String
 }
 
-# A user profile, every user will have a profile
+# A user profile, which has two three attributes, id, name and email.
 type Profile {
   id: ID
   name: String
+  bio: String
   email: String
 }
 
-# Queries
+# Input for editing user profile.
+input profileInput {
+  bio: String
+  location: String
+  twitter: String
+  github: String
+  company: String
+}
+
+# Queries: telling what a client can "query" from your server
 type Query {
   getAllUsersProfile: [Profile!]!
   getUserProfile(email: String): Profile
 }
 
-# Mutations
+# Mutations: telling what "changes" the user can do to your server
 type Mutation {
+  # User mutations
   newUserSignUp(name: String, email: String, password: String): String
   userLogin(email: String, password: String): String
+
+  # Profile mutations
+  updateUserProfile(input: profileInput): Profile # we will work on this
 }
