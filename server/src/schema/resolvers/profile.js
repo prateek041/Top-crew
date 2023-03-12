@@ -1,4 +1,5 @@
 const ProfilesCollection = require("../../models/Profiles")
+const UsersCollection = require("../../models/Users")
 
 // return an array of user profiles
 const getAllUsersProfile = async (_, args, context) => {
@@ -22,13 +23,19 @@ const newUserProfile = async (userName, email) => {
   return NewUserProfile;
 }
 
-const updateUserProfile = async (_, args) => {
-  console.log("This was run");
-  return "yes"
+// Update the user profile depending on what was passed in the arguments.
+const updateUserProfile = async (_, args, context) => {
+  updatePayload = args.input
+  // TODO: There are two calls to the database here, something needs to be done about it.
+  const user = await UsersCollection.findById(context.user.userId)
+  // const profile = await ProfilesCollection.findById(user.profile) // find the user profile
+  const updatedProfile = await ProfilesCollection.findByIdAndUpdate(user.profile, updatePayload, { new: true })
+  return updatedProfile
 }
 
 module.exports = {
   getAllUsersProfile,
   getUserProfile,
-  newUserProfile
+  newUserProfile,
+  updateUserProfile
 }

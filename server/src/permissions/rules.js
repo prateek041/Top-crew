@@ -3,7 +3,6 @@ const { verifyToken } = require("../utils/hashingUtil")
 
 const isAuthenticated = rule({ cache: 'contextual' })(
   async (_, args, context) => {
-    console.log("This function was run")
     const token = context.token?.split(" ")[1];
     if (token !== null) {
       const user = await verifyToken(token)

@@ -47,9 +47,3 @@ Now, we create a rules.js file which contains what roles are allowed and how to 
 
 Next, we define a permissions/index.js file that uses the shield function to generate the shield using the rule model. we create the rule model using the roles we defined in rules.js
 .
-
-## Process from official docs
-
-- shield function takes in the rules map, which matches the graphql schema.
-- Rule map is created using the rule() function.
--
