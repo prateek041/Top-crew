@@ -1,5 +1,5 @@
 const { newUserSignUp, userLogin } = require("../resolvers/user")
-const { getAllUsersProfile, getUserProfile } = require("../resolvers/profile")
+const { getAllUsersProfile, getUserProfile, updateUserProfile } = require("../resolvers/profile")
 
 const resolvers = {
   Query: {
@@ -8,7 +8,8 @@ const resolvers = {
   },
   Mutation: {
     newUserSignUp: newUserSignUp,
-    userLogin: userLogin
+    userLogin: userLogin,
+    updateUserProfile: updateUserProfile
   }
 }
 
