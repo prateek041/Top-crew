@@ -11,6 +11,7 @@ const permissions = shield(
       newUserSignUp: and(),
       userLogin: and(),
       updateUserProfile: isAuthenticated, // A person should be authenticated to update a user pofile
+      deleteUser: isAuthenticated,
     },
   },
   {
