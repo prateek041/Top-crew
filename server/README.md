@@ -141,4 +141,48 @@ In the server, we have protected routes and unprotected routes, we are using gra
 
 Logically, routes that delete or update profile related information should be protected, so let's try to get a single user's profile
 
-TBD
+```gql
+{
+  getUserProfile(email:"prateeksingh9741@gmail.com"){
+    name
+  }
+}
+```
+
+to which the output should be something like this
+
+```gql
+{
+  "data": {
+    "getUserProfile": {
+      "name": "prateek"
+    }
+  }
+}
+```
+
+Since these routes are not protected, anybody can open/read another person's profile.
+
+#### How it is working
+
+In the `/permissions` directory, you can see two files. `index.js` and `rules.js`. These two files will be governing auth for every route. Let's start with rules.js
+
+Currently you can see a function named `isAuthenticated`, which will check if a user is authenticated to access a route or not. SIMPLE !!
+
+The function takes out the token from the auth header, splits it at every " " and takes the second string as the token, why ? because the token being passed from the client looks something like this
+
+`BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGNjN2I4OTM0ZWEyMTRmN2E3ODMxMDQiLCJuYW1lIjoicHJhdGVlayIsImlhdCI6MTY5MTEyMzUwNCwiZXhwIjoxNjkxMTI3MTA0fQ.ouYvno7gNotvlZapyIlcFJHBNKkZhxQ_gflB3uhRePc` 
+
+which is a JWT.
+
+There are some utility functions used to verify if the token is signed properly and is correct, if all goes well, the user information is attached to the context which can be used in further request handling.
+
+It is EXTENSIBLE ! how ? further ahead, if I need more auth related functionalities, I can just attach a new function for it here. So if later I want to add admin role here, I can create a function `isAdmin` which will verify if the user loggin in is an admin or not, hence protecting adming routes.
+
+#### How are the routes being protected ?
+
+We have rules as I defined earlier, and then we have routes (the queries and the mutations), all we need to do now is at attach these rules to the routes. It is done in the index.js file, check it out
+
+There are two queries and two mutations, like our schema, with attributes like `not(isAuthenticated)` and `isAuthenticated`. This is where we connect rules to the routes.
+
+`isAuthenticated` is checking for "True"ness for the function. If the function returns true, the route is accesible. Now, if enclose it in a not(), the results are reverserd. So, if a user is not authenticated, the function returns false, but not() inverts it hence returning true therefore giving access to the user accesing it.

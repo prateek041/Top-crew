@@ -5,7 +5,7 @@ const permissions = shield(
   {
     Query: {
       getAllUsersProfile: not(isAuthenticated),
-      getUserProfile: isAuthenticated,
+      getUserProfile: not(isAuthenticated),
     },
     Mutation: {
       newUserSignUp: and(),
