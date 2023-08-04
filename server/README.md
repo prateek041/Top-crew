@@ -107,7 +107,7 @@ We will be using a higly secure password here and an amazing username and email.
 
 you should get this in return
 
-```gql
+```json
 {
   "data": {
     "newUserSignUp": "User created succesfully"
@@ -121,7 +121,7 @@ Now since, the user is created let's run the getAllUsersProfile query again. Cop
 
 You will get something like this
 
-```gql
+```json
 {
   "data": {
     "getAllUsersProfile": [
@@ -139,7 +139,7 @@ This time the array is not empty and contains an entry, which has a name field w
 
 In the server, we have protected routes and unprotected routes, we are using graphql Shield for it. You can read more about it here [GraphQL Shield : Official Docs]().
 
-Logically, routes that delete or update profile related information should be protected, so let's try to get a single user's profile
+Logically, routes that delete or update information should be protected, so let's try to get a single user's profile
 
 ```gql
 {
@@ -151,7 +151,7 @@ Logically, routes that delete or update profile related information should be pr
 
 to which the output should be something like this
 
-```gql
+```json
 {
   "data": {
     "getUserProfile": {
@@ -161,7 +161,39 @@ to which the output should be something like this
 }
 ```
 
-Since these routes are not protected, anybody can open/read another person's profile.
+Since these routes are not protected, anybody can open/read another person's profile. But when you try to delete someone's profile
+
+```gql
+mutation{
+  deleteUser(email:"prateeksingh9741@gmail.com")
+}
+```
+
+you will get something like this returned from the server.
+
+```json
+{
+  "errors": [
+    {
+      "message": "Unexpected error.",
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "path": [
+        "deleteUser"
+      ]
+    }
+  ],
+  "data": {
+    "deleteUser": null
+  }
+}
+```
+
+This is because the route is protected and the user needs to be authorised to delete any profile. In fact I have set it in a way that a user can only delete their profile.
 
 #### How it is working
 
@@ -171,18 +203,102 @@ Currently you can see a function named `isAuthenticated`, which will check if a 
 
 The function takes out the token from the auth header, splits it at every " " and takes the second string as the token, why ? because the token being passed from the client looks something like this
 
-`BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGNjN2I4OTM0ZWEyMTRmN2E3ODMxMDQiLCJuYW1lIjoicHJhdGVlayIsImlhdCI6MTY5MTEyMzUwNCwiZXhwIjoxNjkxMTI3MTA0fQ.ouYvno7gNotvlZapyIlcFJHBNKkZhxQ_gflB3uhRePc` 
+`BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGNjN2I4OTM0ZWEyMTRmN2E3ODMxMDQiLCJuYW1lIjoicHJhdGVlayIsImlhdCI6MTY5MTEyMzUwNCwiZXhwIjoxNjkxMTI3MTA0fQ.ouYvno7gNotvlZapyIlcFJHBNKkZhxQ_gflB3uhRePc`.
 
 which is a JWT.
 
-There are some utility functions used to verify if the token is signed properly and is correct, if all goes well, the user information is attached to the context which can be used in further request handling.
+There are some utility functions used to verify if the token is signed properly and is correct, if all goes well, the user information is attached to the context which can be used in further request handling. So, when a user wants to delete their profile, they can only delete the profile attached to that specific Json Web Token.
 
 It is EXTENSIBLE ! how ? further ahead, if I need more auth related functionalities, I can just attach a new function for it here. So if later I want to add admin role here, I can create a function `isAdmin` which will verify if the user loggin in is an admin or not, hence protecting adming routes.
 
 #### How are the routes being protected ?
 
-We have rules as I defined earlier, and then we have routes (the queries and the mutations), all we need to do now is at attach these rules to the routes. It is done in the index.js file, check it out
+We have rules as I defined earlier, and then we have routes (the queries and the mutations), all we need to do now is to attach these rules to the routes. It is done in the index.js file, check it out
 
-There are two queries and two mutations, like our schema, with attributes like `not(isAuthenticated)` and `isAuthenticated`. This is where we connect rules to the routes.
+```javascript
+ {
+    Query: {
+      getAllUsersProfile: not(isAuthenticated),
+      getUserProfile: not(isAuthenticated),
+    },
+    Mutation: {
+      newUserSignUp: and(),
+      userLogin: and(),
+      updateUserProfile: isAuthenticated, // A person should be authenticated to update a user pofile
+      deleteUser: isAuthenticated,
+    }
+ }
+```
+
+There are two queries and four mutations, like our schema, with attributes like `not(isAuthenticated)` and `isAuthenticated`. This is where we connect rules to the routes. The file simply says that the queries will run even if the user is not authenticated and the mutations of updating and deleting a profile needs to be authenticated first.
 
 `isAuthenticated` is checking for "True"ness for the function. If the function returns true, the route is accesible. Now, if enclose it in a not(), the results are reverserd. So, if a user is not authenticated, the function returns false, but not() inverts it hence returning true therefore giving access to the user accesing it.
+
+The debug:true property helps in debugging because it logs out which route was being accessed and permission was not granted. therefore logs like these are generated.
+
+```shell
+ERR Error: Not Authorised!
+    at normalizeOptions (/home/prateek/Desktop/Dev/js-builds/projects/Top-crew/server/node_modules/graphql-shield/cjs/shield.js:27:52)
+    at shield (/home/prateek/Desktop/Dev/js-builds/projects/Top-crew/server/node_modules/graphql-shield/cjs/shield.js:40:31)
+    at Object.<anonymous> (/home/prateek/Desktop/Dev/js-builds/projects/Top-crew/server/src/permissions/index.js:4:21)
+    at Module._compile (node:internal/modules/cjs/loader:1256:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1310:10)
+    at Module.load (node:internal/modules/cjs/loader:1119:32)
+    at Module._load (node:internal/modules/cjs/loader:960:12)
+    at Module.require (node:internal/modules/cjs/loader:1143:19)
+    at require (node:internal/modules/cjs/helpers:110:18)
+    at Object.<anonymous> (/home/prateek/Desktop/Dev/js-builds/projects/Top-crew/server/src/index.js:7:25) {
+  path: [ 'updateUserProfile' ],
+  locations: [ { line: 2, column: 3 } ],
+  extensions: [Object: null prototype] {}
+}
+```
+
+This error is generated when the user is not authorised to access a route.
+
+So, now let's try to delete the user, for which we would have to login first and get the JWT.
+
+To login, run the userLogin query, for example:
+
+```gql
+mutation{
+  userLogin(email:"123@gmail.com" password:"1234")
+}
+```
+
+running this query will return an JWT, which we will use to further authenticate our requests to the server.\
+
+```json
+{
+  "data": {
+    "userLogin": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGNjY2QwZWEwMjU5NDIzNWRiNjRhZWUiLCJuYW1lIjoicHJhdGVlayIsImlhdCI6MTY5MTE0NTIwMSwiZXhwIjoxNjkxMTQ4ODAxfQ.RrMABp_oSESbUqkjzZz50XXY8pe8e_D8Df5hBoNk9Vw"
+  }
+}
+```
+
+Now, let's use this JWT to delete the user.
+
+```gql
+mutation{
+  deleteUser(email:"123@gmail.com")
+}
+```
+
+and don't forget to attach the token in the hader, on the bottom left corner, grahpiQL provides a place to attach the JWT. for example, I am psting the JWT I got from the previous example login.
+
+```json
+{
+  "Authorization":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGNjYzUxNzdlODE0YmQ4YjViYTNmMjIiLCJuYW1lIjoicHJhdGVlayIsImlhdCI6MTY5MTE0MjE5MiwiZXhwIjoxNjkxMTQ1NzkyfQ.J_SPQhM6Xs2CTgZunlAF_7np5kMG-ejk8XhsGx1MNhM"
+}
+```
+
+this time we get an output like this
+
+```json
+{
+  "data": {
+    "deleteUser": "User deleted Succesfully"
+  }
+}
+```
+We succesfully deleted the user and their profile !

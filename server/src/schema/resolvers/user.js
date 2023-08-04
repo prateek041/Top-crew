@@ -72,7 +72,7 @@ const deleteUser = async (_, args, context) => {
   // Delete the User
   console.log('Deleting User');
   // since profile was found and deleted, user will definitely exist, therefore not checking for it's existence
-  await UsersCollection.findByIdAndDelete(uid);
+  await UsersCollection.deleteOne({ email: user.email });
   return 'User deleted Succesfully';
 };
 
