@@ -61,17 +61,18 @@ const userLogin = async (_, args) => {
 };
 
 // Delete user
-const deleteUser = async (_, args) => {
-  const email = args.email;
+const deleteUser = async (_, args, context) => {
+  const uid = context.user.userId;
+  const user = await UsersCollection.findById(uid);
 
   // Delete the profile
-  console.log('Deleting user: ', email);
-  await deleteUserProfile(email);
+  console.log('Deleting the User', user.email);
+  await deleteUserProfile(user.email);
 
   // Delete the User
-  console.log('Deleting User ', email);
+  console.log('Deleting User');
   // since profile was found and deleted, user will definitely exist, therefore not checking for it's existence
-  await UsersCollection.deleteOne({ email: email });
+  await UsersCollection.findByIdAndDelete(uid);
   return 'User deleted Succesfully';
 };
 

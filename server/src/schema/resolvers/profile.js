@@ -44,11 +44,11 @@ const updateUserProfile = async (_, args, context) => {
 
 // Delete the user's profile.
 const deleteUserProfile = async (email) => {
-  const profile = await ProfilesCollection.findOne({ email: email });
+  const profile = await ProfilesCollection.find({ email: email });
   if (!profile) {
     throw new Error('Profile not found');
   }
-  await ProfilesCollection.findOneAndDelete({ email: email });
+  await ProfilesCollection.deleteOne({ email: email });
   console.log('Profile deleted succesfully');
 };
 
