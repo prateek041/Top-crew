@@ -1,6 +1,6 @@
 const { hashPass } = require('../../utils/hashingUtil');
 const UsersCollection = require('../../models/Users');
-const { newUserProfile, deleteUserProfile } = require('./profile');
+const { newUserProfile } = require('./profile');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -60,24 +60,7 @@ const userLogin = async (_, args) => {
   return token;
 };
 
-// Delete user
-const deleteUser = async (_, args, context) => {
-  const uid = context.user.userId;
-  const user = await UsersCollection.findById(uid);
-
-  // Delete the profile
-  console.log('Deleting the User', user.email);
-  await deleteUserProfile(user.email);
-
-  // Delete the User
-  console.log('Deleting User');
-  // since profile was found and deleted, user will definitely exist, therefore not checking for it's existence
-  await UsersCollection.deleteOne({ email: user.email });
-  return 'User deleted Succesfully';
-};
-
 module.exports = {
   newUserSignUp,
   userLogin,
-  deleteUser,
 };
